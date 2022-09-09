@@ -42,10 +42,10 @@ def login():
     access_token = create_access_token(identity=user.id)
     return jsonify({ "token": access_token, "user_id": user.id })
 
-@app.route("/protected", methods=["GET"])
-@jwt_required()
-def protected():
-    current_user_id = get_jwt_identity()
-    user = User.filter.get(current_user_id)
+# @app.route("/protected", methods=["GET"])
+# @jwt_required()
+# def protected():
+#     current_user_id = get_jwt_identity()
+#     user = User.filter.get(current_user_id)
     
-    return jsonify({"id": user.id, "username": user.username }), 200
+#     return jsonify({"id": user.id, "username": user.username }), 200
