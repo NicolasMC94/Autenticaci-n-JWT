@@ -1,6 +1,3 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User
 from api.utils import generate_sitemap, APIException
@@ -42,10 +39,10 @@ def login():
     access_token = create_access_token(identity=user.id)
     return jsonify({ "token": access_token, "user_id": user.id })
 
-# @app.route("/protected", methods=["GET"])
-# @jwt_required()
-# def protected():
-#     current_user_id = get_jwt_identity()
-#     user = User.filter.get(current_user_id)
+@app.route("/protected", methods=["GET"])
+@jwt_required()
+def toke_access():
+    current_user_id = get_jwt_identity()
+    user = User.filter.get(current_user_id)
     
-#     return jsonify({"id": user.id, "username": user.username }), 200
+    return jsonify({"id": user.id, "username": user.username }), 200
