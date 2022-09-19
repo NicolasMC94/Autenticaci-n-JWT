@@ -11,16 +11,34 @@ from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required,get_jwt
+from api.models import db, User
+from api.routes import blacklist
+
 #from models import Person
 
 ENV = os.getenv("FLASK_ENV")
 static_file_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this "super secret" with something else!
-jwt = JWTManager(app)
 app.url_map.strict_slashes = False
 
+app.config['JWT_SECRET_KEY'] = 'top-secret'  # Change this!
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+jwt = JWTManager(app)
+
+
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blacklist(self,decrypted_token):
+    jti = decrypted_token['jti']
+    return jti in blacklist
+
+@app.route('/logout', methods=['DELETE'])
+@jwt_required()
+def logout():
+    jti = get_jwt()["jti"]
+    blacklist.add(jti)
+    return jsonify({"msg": "Successfully logged out"}), 200
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
@@ -64,6 +82,7 @@ def serve_any_other_file(path):
     response = send_from_directory(static_file_dir, path)
     response.cache_control.max_age = 0 # avoid cache memory
     return response
+
 
 
 # this only runs if `$ python src/main.py` is executed

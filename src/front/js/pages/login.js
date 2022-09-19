@@ -1,93 +1,65 @@
-import React, { useContext, useState }from "react";
+import React, { useContext, useState } from "react";
 import { Context } from "../store/appContext";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-export const Login = () => {
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { store, actions } = useContext(Context);
 
-	const { store, actions } = useContext(Context);
-	const [email, setEmail] = useState("");
-	const [password, setPassword] = useState("");
-  const [passwordError, setpasswordError] = useState(null);
-  const [emailError, setemailError] = useState(null);
+  let navigate = useNavigate();
 
-	let navigate = useNavigate();
-
-  const handleValidation = () => {
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    let loginUser = await actions.login(email, password);
+    if (loginUser) navigate("/private");
+    else {
+      alert("datos inválidos");
+    }
   };
 
-	const handleClick = (e) => {
-		e.preventDefault();
-    //handleValidation();
-    if(!email.trim()){
-      setemailError('Datos vacíos en el email!')
-      return false;
-    }
-    
-    if(!password.trim()){
-      setpasswordError('Datos vacíos en el password!')
-      return false;
-    }
-    if(password.length < 6){
-      setpasswordError('El password debe contener 6 o más carácteres.')
-        return false;
-    }
-    setemailError(null)
-    setpasswordError(null)
-		actions.login(email, password);
-	};
-  if (store.token && store.token != "" && store.token != undefined)navigate("/");
   return (
-    <div className="Auth-form-container" id="login-div">
-      <form className="Auth-form" onSubmit={handleClick}>
-        <div className="Auth-form-content">
-          <h3 className="Auth-form-title">Acceso</h3>
-          {store.token && store.token != "" && store.token != undefined ? (
-            store.token
-          ) : (
-            <>
-              <div className="form-group mt-3">
-                <label>Correo Electrónico:</label>
-                <input
-                  type="email"
-                  className="form-control mt-1"
-                  placeholder="Introduce el correo electrónico"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                 <small className="text-danger form-text">
-                  {emailError}
-                </small>
-              </div>
-              <div className="form-group mt-3">
-                <label>Clave:</label>
-                <div className="input-group">
-                  <input
-                  type='text'
-                  className="form-control"
-                  placeholder="Introduce la contraseña"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-                <small id="passworderror" className="text-danger form-text">
-                  {passwordError}
-                </small>
-              </div>
-              <div className="d-grid gap-2 mt-3">
-                <button className="btn btn-primary">Ingresar</button>
-              </div>
-            </>
-          )}
-        </div>
-      </form>
-      <hr className="my-4" />
-        <Link to="/">
-            <span className="btn btn-primary btn-lg" href="#" role="button">
-                Back home
-            </span>
-        </Link>
+    <div className="bg-fondo vh-100 color-texto">
+      <h1 className=" text-center pt-3">Login</h1>
+      <div className="d-flex justify-content-center align-items-center h-50 d-inline-block">
+        <form onSubmit={handleSubmit} className="col-10 col-md-5">
+          <div className="mb-3">
+            <label htmlFor="exampleInputEmail1" className="form-label ">
+              Email*
+            </label>
+            <input
+              type="email"
+              className="form-control"
+              id="exampleInputEmail1"
+              aria-describedby="emailHelp"
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="exampleInputPassword1" className="form-label">
+              Contraseña*
+            </label>
+            <input
+              type="password"
+              className="form-control"
+              id="exampleInputPassword1"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <div className="d-grid">
+            <button type="submit" className="btn btn-primary">
+              Entrar
+            </button>
+          </div>
+          <div className="text-center  mt-1">
+            <Link to="/signup" className="text-white text-decoration-none">
+              Crear nuevo usuario
+            </Link>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
+
+export default Login;
