@@ -1,3 +1,35 @@
 /* 
     General Styles used on every website (Don't Repeat Yourself)
 */
+
+:root {
+    --color-principal: #2e4053;
+    --color-secundario: #717d7e;
+    --color-botones: #5d6d7e;
+    --color-texto: #f2f3f4;
+  }
+  
+  /* ------------ GENERALES  ----------- */
+  
+  .bg-fondo {
+    background-color: var(--color-principal);
+  }
+  
+  .bg-secundario {
+    background-color: var(--color-secundario);
+  }
+  
+  .color-texto {
+    color: var(--color-texto);
+  }
+  
+  .color-boton {
+    background-color: var(--color-botones);
+  }
+  
+  .alerta-error {
+    background-color: red;
+  }
+  .alerta-correcto {
+    background-color: green;
+  }

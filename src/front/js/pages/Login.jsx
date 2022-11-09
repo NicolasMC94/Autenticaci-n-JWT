@@ -20,7 +20,7 @@ const Login = () => {
 
   return (
     <div className="bg-fondo vh-100 color-texto">
-      <h1 className=" text-center pt-3">Login</h1>
+      <h1 className=" text-center pt-3">Acceder</h1>
       <div className="d-flex justify-content-center align-items-center h-50 d-inline-block">
         <form onSubmit={handleSubmit} className="col-10 col-md-5">
           <div className="mb-3">

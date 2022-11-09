@@ -1,6 +1,3 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
 import redis
 from datetime import timedelta
 from flask import Flask, request, jsonify, url_for, Blueprint
@@ -12,66 +9,45 @@ from flask_jwt_extended import (
     create_access_token,get_jwt
 )
 
-
 api = Blueprint('api', __name__)
 
+""" blacklist = set() """
 
-blacklist = set()
-
-""" @jwt.token_in_blacklist_loader
-def check_if_token_in_blacklist(decrypted_token):
-    jti = decrypted_token['jti']
-    return jti in blacklist """
-
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
-
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
-
-    return jsonify(response_body), 200
-
-@api.route('/register', methods=['POST'])
-def registro():
-    persona = request.get_json()
-    user = User.query.filter_by(email = persona.get("email")).first()
-    if user:
-        raise APIException('El correo ya existe', status_code=404)
-    persona = User(
-            email = persona.get("email"),
-            password = persona["password"],
-            is_active = persona["is_active"],
-                   )
-    db.session.add(persona)
+@api.route('/signup', methods=['POST'])
+def signup():
+    data = request.get_json() 
+    user = User.query.filter_by(email = data.get("email")).first()
+    if user is not None:
+        return "Usuario ya existente", 404
+    new_user = User(
+        email = data.get("email"),
+        password = data.get("password"),
+        is_active = True
+    )
+    db.session.add(new_user)
     db.session.commit()
-    persona = persona.serialize()
-    return jsonify(persona), 200
 
-@api.route("/token", methods=["POST"])
-def create_token():
-    email = request.json.get("email",None)
-    password = request.json.get("password",None)
+    return jsonify(new_user.serialize()), 200
 
-    user = User.query.filter_by(email=email, password=password).first()
+    
+@api.route('/login', methods=['POST'])
+def login():
+    data = request.get_json() 
+    user = User.query.filter_by(email = data["email"], password = data["password"]).first()
+    # user = User.query.filter_by(email = data.get("email"), password = data.get("password")).first()
+    # las 2 lineas anteriores significan lo mismo
     if user is None:
-        return jsonify({"msg" : "Bad username or password"}), 401
-
+        return "Usuario incorrecto", 401
     access_token = create_access_token(identity=user.id)
-    return jsonify({"token":access_token, "user_id":user.id})
+    return jsonify({ "token": access_token, "user_id": user.id, "result": "Usuario registrado correctamente"}), 200
 
-@api.route("/protected", methods=["GET"])
+
+@api.route('/private', methods=['GET'])
 @jwt_required()
-def protected():
+def private():
     current_user_id = get_jwt_identity()
     user = User.query.get(current_user_id)
-    
-    return jsonify({"id": user.id, "email": user.email }), 200
-
-
-@api.route('/logout', methods=['DELETE'])
-@jwt_required()
-def logout():
-    jti = get_jwt()["jti"]
-    blacklist.add(jti)
-    return jsonify({"msg": "Successfully logged out"}), 200
+    if user:
+        return jsonify({"resultado": "acceso permitido"}), 200
+    else:
+        return jsonify({ "resultado": "usuario no autenticado"}), 400
